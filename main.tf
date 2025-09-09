@@ -58,13 +58,13 @@ module "app" {
   source = "./modules/app"
 
   location = var.location
-  name     = "demo"
+  name     = local.prefix
 
   resource_group_id   = module.base.azurerm_resource_group_id
   resource_group_name = module.base.azurerm_resource_group_name
   image_name          = local.prefix
   image_context       = "$path.cwd}/"
-  docker_image_name   = "foo.azurecr.io/demo:latest"
+  docker_image_name   = "${local.prefix}.azurecr.io/demo:latest"
   dockerfile          = "${path.cwd}/Dockerfile.web"
 
   service_plan_id     = module.base.azurerm_service_plan_id
@@ -75,6 +75,10 @@ module "app" {
   tags                = local.tags
 }
 
-output "tags" {
-  value = local.tags
+output "app" {
+  value = {
+    tags             = local.tags
+    default_hostname = module.app.default_hostname
+  }
 }
+

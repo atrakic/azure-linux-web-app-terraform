@@ -4,7 +4,7 @@ variable "tags" {
 }
 
 variable "location" {}
-variable "name" {} # FIXME:
+variable "name" {}
 variable "resource_group_id" {}
 variable "resource_group_name" {}
 variable "image_name" {}
@@ -56,7 +56,7 @@ resource "azurerm_linux_web_app" "this" {
   }
 
   app_settings = {
-    "WEBSITES_PORT" = "8080"
+    "WEBSITES_PORT" = "8080" # <change-here>
   }
 
   identity {
@@ -77,7 +77,7 @@ resource "azurerm_linux_web_app" "this" {
 }
 
 resource "azurerm_role_assignment" "this" {
-  scope                = var.resource_group_id # data.azurerm_resource_group.rg.id
+  scope                = var.resource_group_id
   role_definition_name = "AcrPull"
   principal_id         = azurerm_linux_web_app.this.identity[0].principal_id
 }
