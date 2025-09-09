@@ -10,7 +10,6 @@ variable "resource_group_name" {}
 variable "image_name" {}
 variable "image_context" {}
 variable "docker_image_name" {}
-
 variable "service_plan_id" {}
 variable "docker_registry_url" {}
 variable "acr_login_server" {}
@@ -30,7 +29,7 @@ resource "docker_image" "this" {
   build {
     no_cache   = true
     dockerfile = var.dockerfile
-    context    = var.image_context # "${path.cwd}/init-app"
+    context    = var.image_context
   }
 }
 
