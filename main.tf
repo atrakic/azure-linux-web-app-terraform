@@ -51,22 +51,19 @@ module "base" {
   location = var.location
   name     = local.prefix
   tags     = local.tags
-  #prefix  = local.prefix
 }
 
 module "app" {
   source = "./modules/app"
 
-  location = var.location
-  name     = local.prefix
-
+  location            = var.location
+  name                = local.prefix
   resource_group_id   = module.base.azurerm_resource_group_id
   resource_group_name = module.base.azurerm_resource_group_name
   image_name          = local.prefix
   image_context       = "$path.cwd}/"
   docker_image_name   = "${local.prefix}.azurecr.io/demo:latest"
   dockerfile          = "${path.cwd}/Dockerfile.web"
-
   service_plan_id     = module.base.azurerm_service_plan_id
   docker_registry_url = "https://${module.base.azurerm_container_registry_login_server}"
   acr_login_server    = module.base.azurerm_container_registry_login_server
