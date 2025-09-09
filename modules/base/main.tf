@@ -1,0 +1,66 @@
+variable "tags" {
+  type    = map(any)
+  default = {}
+}
+
+variable "location" {}
+variable "name" {}
+
+locals {
+  azurerm_resource_group_name = "${var.name}-rg"
+}
+
+resource "azurerm_resource_group" "this" {
+  name     = local.azurerm_resource_group_name
+  location = var.location
+  tags     = var.tags
+}
+
+resource "azurerm_container_registry" "this" {
+  name                = "${var.name}reg" # alpha numeric characters only are allowed 
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  sku                 = "Standard"
+  admin_enabled       = true
+  tags                = var.tags
+}
+
+resource "azurerm_service_plan" "this" {
+  name                = "${var.name}-plan"
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  os_type             = "Linux"
+  sku_name            = "B2"
+  worker_count        = 1
+  tags                = var.tags
+}
+
+output "azurerm_resource_group_id" {
+  value = azurerm_resource_group.this.id
+}
+
+output "azurerm_resource_group_name" {
+  value = local.azurerm_resource_group_name
+}
+
+output "azurerm_container_registry_id" {
+  value = azurerm_container_registry.this.id
+}
+
+output "azurerm_container_registry_login_server" {
+  value = azurerm_container_registry.this.login_server
+}
+
+output "azurerm_container_registry_admin_username" {
+  sensitive = true
+  value     = azurerm_container_registry.this.admin_username
+}
+
+output "azurerm_container_registry_admin_password" {
+  sensitive = true
+  value     = azurerm_container_registry.this.admin_password
+}
+
+output "azurerm_service_plan_id" {
+  value = azurerm_service_plan.this.id
+}
