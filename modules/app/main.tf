@@ -33,6 +33,13 @@ resource "docker_image" "this" {
   }
 }
 
+resource "azurerm_application_insights" "this" {
+  name                = "${var.name}-appinsights"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  application_type    = "other"
+}
+
 resource "azurerm_linux_web_app" "this" {
   name                = var.name
   resource_group_name = var.resource_group_name
@@ -55,7 +62,9 @@ resource "azurerm_linux_web_app" "this" {
   }
 
   app_settings = {
-    "WEBSITES_PORT" = "8080" # <change-here>
+    "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.this.connection_string
+    "APPINSIGHTS_INSTRUMENTATIONKEY"        = azurerm_application_insights.this.instrumentation_key
+    "WEBSITES_PORT"                         = "8080"
   }
 
   identity {
