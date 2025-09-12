@@ -31,7 +31,7 @@ variable "location" {
 }
 
 locals {
-  prefix = "demo${random_pet.name.id}"
+  prefix = random_pet.name.id
   tags = merge(
     {
       Workspace = terraform.workspace
@@ -53,16 +53,38 @@ module "base" {
   tags     = local.tags
 }
 
-module "app" {
+module "api" {
   source = "./modules/app"
 
   location            = var.location
-  name                = local.prefix
+  name                = "api${local.prefix}"
   resource_group_id   = module.base.azurerm_resource_group_id
   resource_group_name = module.base.azurerm_resource_group_name
   image_name          = local.prefix
   image_context       = "${path.module}/"
-  docker_image_name   = "${local.prefix}.azurecr.io/demo:latest"
+  docker_image_name   = "${local.prefix}.azurecr.io/api:latest"
+  dockerfile          = "${path.module}/Dockerfile.api"
+  service_plan_id     = module.base.azurerm_service_plan_id
+  docker_registry_url = "https://${module.base.azurerm_container_registry_login_server}"
+  acr_login_server    = module.base.azurerm_container_registry_login_server
+  acr_admin_username  = module.base.azurerm_container_registry_admin_username
+  acr_admin_password  = module.base.azurerm_container_registry_admin_password
+  tags                = local.tags
+
+  APPLICATIONINSIGHTS_CONNECTION_STRING = module.base.application_insights_connection_string
+  APPINSIGHTS_INSTRUMENTATIONKEY        = module.base.application_insights_instrumentation_key
+}
+
+module "web" {
+  source = "./modules/app"
+
+  location            = var.location
+  name                = "web${local.prefix}"
+  resource_group_id   = module.base.azurerm_resource_group_id
+  resource_group_name = module.base.azurerm_resource_group_name
+  image_name          = local.prefix
+  image_context       = "${path.module}/"
+  docker_image_name   = "${local.prefix}.azurecr.io/web:latest"
   dockerfile          = "${path.module}/Dockerfile.web"
   service_plan_id     = module.base.azurerm_service_plan_id
   docker_registry_url = "https://${module.base.azurerm_container_registry_login_server}"
@@ -70,12 +92,21 @@ module "app" {
   acr_admin_username  = module.base.azurerm_container_registry_admin_username
   acr_admin_password  = module.base.azurerm_container_registry_admin_password
   tags                = local.tags
+
+  APPLICATIONINSIGHTS_CONNECTION_STRING = module.base.application_insights_connection_string
+  APPINSIGHTS_INSTRUMENTATIONKEY        = module.base.application_insights_instrumentation_key
 }
 
-output "app" {
+output "api" {
   value = {
     tags             = local.tags
-    default_hostname = module.app.default_hostname
+    default_hostname = module.api.default_hostname
   }
 }
 
+output "web" {
+  value = {
+    tags             = local.tags
+    default_hostname = module.web.default_hostname
+  }
+}

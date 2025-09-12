@@ -16,6 +16,8 @@ variable "acr_login_server" {}
 variable "acr_admin_username" {}
 variable "acr_admin_password" {}
 variable "dockerfile" { default = "Dockerfile" }
+variable "APPLICATIONINSIGHTS_CONNECTION_STRING" { default = "" }
+variable "APPINSIGHTS_INSTRUMENTATIONKEY" { default = "" }
 
 resource "docker_registry_image" "this" {
   name          = docker_image.this.name
@@ -31,13 +33,6 @@ resource "docker_image" "this" {
     dockerfile = var.dockerfile
     context    = var.image_context
   }
-}
-
-resource "azurerm_application_insights" "this" {
-  name                = "${var.name}-appinsights"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  application_type    = "other"
 }
 
 resource "azurerm_linux_web_app" "this" {
@@ -62,8 +57,8 @@ resource "azurerm_linux_web_app" "this" {
   }
 
   app_settings = {
-    "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.this.connection_string
-    "APPINSIGHTS_INSTRUMENTATIONKEY"        = azurerm_application_insights.this.instrumentation_key
+    "APPLICATIONINSIGHTS_CONNECTION_STRING" = var.APPLICATIONINSIGHTS_CONNECTION_STRING
+    "APPINSIGHTS_INSTRUMENTATIONKEY"        = var.APPINSIGHTS_INSTRUMENTATIONKEY
     "WEBSITES_PORT"                         = "8080"
   }
 

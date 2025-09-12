@@ -1,0 +1,27 @@
+services:
+  ci:
+    #image: curlimages/curl:latest
+    image: alpine:latest
+    container_name: ci
+    tty: true
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -x
+        apk add --no-cache jq curl bash
+        timeout 10 sh -c 'while ! curl -s $$URI; do echo "Waiting for service..."; sleep 1; done'
+        if [ $? -eq 124 ]; then
+          echo 'Timeout reached, exiting...'
+        else
+          echo 'Service is up and running!'
+          bash -x /tests/test.sh
+        fi
+    environment:
+      URI: http://web/api
+    volumes:
+      - ./tests:/tests
+    depends_on:
+      # should match service name of your app:
+      web:
+        condition: service_started
