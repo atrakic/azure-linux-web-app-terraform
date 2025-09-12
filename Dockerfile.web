@@ -75,7 +75,7 @@ function continuousFetch(url) {
 continuousFetch('/api');
 EOF
 
-ENV API_URI=http://api:8080
+ENV API_URI=${API_URI:-http://api:8080}
 
 # Configure Nginx to serve the static file
 RUN <<EOF cat > /etc/nginx/conf.d/default.conf
