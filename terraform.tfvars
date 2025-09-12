@@ -1,1 +1,2 @@
 # terraform.tfvars
+# location = westeurope
