@@ -20,7 +20,12 @@ get fmt version:
 test:
 	[ -f ./test/test.sh ] && ./test/test.sh || true
 
+ci:
+	COMPOSE_FILE=compose.yml:compose.ci.yml \
+	DOCKER_BUILDKIT=1 docker-compose up --build --force-recreate ci -d
+
 clean:
+	docker-compose down --remove-orphans -v --rmi local
 	rm -rf .terraform *.tfstate
 
 -include include.mk

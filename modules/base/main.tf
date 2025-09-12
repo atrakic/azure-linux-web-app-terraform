@@ -35,6 +35,13 @@ resource "azurerm_service_plan" "this" {
   tags                = var.tags
 }
 
+resource "azurerm_application_insights" "this" {
+  name                = "${var.name}-appinsights"
+  location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
+  application_type    = "other"
+}
+
 output "azurerm_resource_group_id" {
   value = azurerm_resource_group.this.id
 }
@@ -63,4 +70,12 @@ output "azurerm_container_registry_admin_password" {
 
 output "azurerm_service_plan_id" {
   value = azurerm_service_plan.this.id
+}
+
+output "application_insights_connection_string" {
+  value = azurerm_application_insights.this.connection_string
+}
+
+output "application_insights_instrumentation_key" {
+  value = azurerm_application_insights.this.instrumentation_key
 }
