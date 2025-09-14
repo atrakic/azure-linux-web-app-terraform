@@ -30,12 +30,17 @@ variable "location" {
   default = "northeurope"
 }
 
+variable "version" {
+  default = "main"
+}
+
 locals {
   prefix = random_pet.name.id
   tags = merge(
     {
+      module    = "atrakic/azure-linux-web-app-terraform"
+      version   = local.version
       Workspace = terraform.workspace
-      Terraform = "true"
     },
   )
 }
@@ -45,11 +50,17 @@ resource "random_pet" "name" {
   separator = ""
 }
 
+# This ensures we have unique CAF compliant names for our resources.
+module "naming" {
+  source  = "Azure/naming/azurerm"
+  version = "0.4.2"
+}
+
 module "base" {
   source = "./modules/base"
 
   location = var.location
-  name     = local.prefix
+  name     = module.naming.resource_group.name_unique
   tags     = local.tags
 }
 
