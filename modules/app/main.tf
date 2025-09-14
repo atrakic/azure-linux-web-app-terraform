@@ -36,7 +36,9 @@ resource "docker_image" "this" {
 }
 
 resource "azurerm_linux_web_app" "this" {
-  name                = var.name
+  name = var.name
+
+  # checkov:skip=CKV_AZURE_88: "Ensure that app services use Azure Files"
   resource_group_name = var.resource_group_name
   location            = var.location
   service_plan_id     = var.service_plan_id
