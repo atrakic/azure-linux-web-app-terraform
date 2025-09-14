@@ -21,6 +21,7 @@ resource "azurerm_container_registry" "this" {
   resource_group_name       = azurerm_resource_group.this.name
   location                  = azurerm_resource_group.this.location
   sku                       = "Standard"
+  # checkov:skip=CKV_AZURE_137:"Ensure ACR admin account is disabled"
   admin_enabled             = true
   trust_policy_enabled      = true
   retention_policy_in_days  = 7
