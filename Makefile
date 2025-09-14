@@ -5,10 +5,14 @@ APP ?= api
 
 .PHONY: all init test ci clean
 all:
+	export ARM_CLIENT_SECRET="${ARM_CLIENT_SECRET:-fake-client-secret}"
+	export ARM_SUBSCRIPTION_ID="${ARM_SUBSCRIPTION_ID:-00000000-0000-0000-0000-000000000000}"
+	export ARM_CLIENT_ID="${ARM_CLIENT_ID:-00000000-0000-0000-0000-000000000000}"
+	export ARM_TENANT_ID="${ARM_TENANT_ID:-00000000-0000-0000-0000-000000000000}"
 	terraform init -upgrade
 	terraform fmt -recursive
 	terraform validate
-	TF_LOG=debug terraform plan
+	TF_LOG=${TF_LOG=:-debug} terraform plan
 
 ## Initialize terraform remote state
 init:

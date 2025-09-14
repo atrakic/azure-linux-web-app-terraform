@@ -9,7 +9,6 @@ terraform {
       source  = "kreuzwerker/docker"
       version = "3.6.2"
     }
-    random = "~> 3.4.3"
   }
 }
 
@@ -31,7 +30,7 @@ variable "location" {
 }
 
 locals {
-  prefix = random_pet.name.id
+  name = module.naming.resource_group.name_unique
   tags = merge(
     {
       module    = "atrakic/azure-linux-web-app-terraform"
@@ -41,9 +40,6 @@ locals {
 }
 
 # main
-resource "random_pet" "name" {
-  separator = ""
-}
 
 # This ensures we have unique CAF compliant names for our resources.
 module "naming" {
@@ -54,7 +50,7 @@ module "base" {
   source = "./modules/base"
 
   location = var.location
-  name     = module.naming.resource_group.name_unique
+  name     = local.name
   tags     = local.tags
 }
 
@@ -62,11 +58,11 @@ module "api" {
   source = "./modules/app"
 
   location            = var.location
-  name                = "api${local.prefix}"
+  name                = "api${local.name}"
   resource_group_id   = module.base.azurerm_resource_group_id
   resource_group_name = module.base.azurerm_resource_group_name
   image_context       = path.module
-  docker_image_name   = "${local.prefix}.azurecr.io/api:latest"
+  docker_image_name   = "${local.name}.azurecr.io/api:latest"
   dockerfile          = "${path.module}/Dockerfile.api"
   service_plan_id     = module.base.azurerm_service_plan_id
   acr_login_server    = module.base.azurerm_container_registry_login_server
@@ -87,11 +83,11 @@ module "web" {
   source = "./modules/app"
 
   location            = var.location
-  name                = "web${local.prefix}"
+  name                = "web${local.name}"
   resource_group_id   = module.base.azurerm_resource_group_id
   resource_group_name = module.base.azurerm_resource_group_name
   image_context       = path.module
-  docker_image_name   = "${local.prefix}.azurecr.io/web:latest"
+  docker_image_name   = "${local.name}.azurecr.io/web:latest"
   dockerfile          = "${path.module}/Dockerfile.web"
   service_plan_id     = module.base.azurerm_service_plan_id
   acr_login_server    = module.base.azurerm_container_registry_login_server
