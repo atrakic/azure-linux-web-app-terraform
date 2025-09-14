@@ -65,7 +65,7 @@ module "api" {
   name                = "api${local.prefix}"
   resource_group_id   = module.base.azurerm_resource_group_id
   resource_group_name = module.base.azurerm_resource_group_name
-  image_context       = "${path.module}/"
+  image_context       = path.module
   docker_image_name   = "${local.prefix}.azurecr.io/api:latest"
   dockerfile          = "${path.module}/Dockerfile.api"
   service_plan_id     = module.base.azurerm_service_plan_id
@@ -87,7 +87,7 @@ module "web" {
   name                = "web${local.prefix}"
   resource_group_id   = module.base.azurerm_resource_group_id
   resource_group_name = module.base.azurerm_resource_group_name
-  image_context       = "${path.module}/"
+  image_context       = path.module
   docker_image_name   = "${local.prefix}.azurecr.io/web:latest"
   dockerfile          = "${path.module}/Dockerfile.web"
   service_plan_id     = module.base.azurerm_service_plan_id
