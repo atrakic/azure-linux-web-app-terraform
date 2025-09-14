@@ -8,4 +8,4 @@ jobs:
   terraform-ci:
     uses: atrakic/terraform-test-workflow/.github/workflows/tf-reusable-workflow.yml@main
     with:
-      working_directory: tests/tf
+      terraform_version: ">= 1.0"
