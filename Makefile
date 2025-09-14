@@ -1,3 +1,9 @@
+MAKEFLAGS += --silent
+
+OPTIONS ?= --build --quiet-pull --force-recreate --no-color --remove-orphans
+APP ?= api
+
+.PHONY: all init test ci clean
 all:
 	terraform init -upgrade
 	terraform fmt -recursive
@@ -16,13 +22,18 @@ apply console destroy graph plan output providers show validate: init
 get fmt version:
 	terraform $@
 
-.PHONY: test
-test:
-	[ -f ./test/test.sh ] && ./test/test.sh || true
+compose:
+	docker compose up $(OPTIONS) -d
 
 ci:
-	COMPOSE_FILE=compose.yml:compose.ci.yml \
-	DOCKER_BUILDKIT=1 docker-compose up --build --force-recreate ci -d
+	COMPOSE_FILE=compose.yml:compose.ci.yml DOCKER_BUILDKIT=1 \
+							 docker compose up $(OPTIONS) --exit-code-from ci
+
+healthcheck:
+	docker inspect $(APP) --format "{{ (index (.State.Health.Log) 0).Output }}"
+
+test:
+	[ -f ./test/test.sh ] && ./test/test.sh || true
 
 clean:
 	docker-compose down --remove-orphans -v --rmi local
