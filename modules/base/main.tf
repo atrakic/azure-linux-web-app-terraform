@@ -31,8 +31,9 @@ resource "azurerm_service_plan" "this" {
   location            = azurerm_resource_group.this.location
   os_type             = "Linux"
   sku_name            = "B2"
-  worker_count        = 2 # Ensure you're using a minimum of two instances for better availability
-  tags                = var.tags
+  worker_count        = 1
+  # zone_balancing_enabled = true
+  tags = var.tags
 }
 
 resource "azurerm_application_insights" "this" {
