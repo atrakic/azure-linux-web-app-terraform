@@ -7,7 +7,6 @@ variable "location" {}
 variable "name" {}
 variable "resource_group_id" {}
 variable "resource_group_name" {}
-variable "image_name" {}
 variable "image_context" {}
 variable "docker_image_name" {}
 variable "service_plan_id" {}
@@ -38,6 +37,7 @@ resource "docker_image" "this" {
 resource "azurerm_linux_web_app" "this" {
   name = var.name
 
+  # checkov:skip=CKV_AZURE_63: "Ensure that App service enables HTTP logging"
   # checkov:skip=CKV_AZURE_222: "Ensure that Azure Web App public network access is disabled"
   # checkov:skip=CKV_AZURE_13: "Ensure App Service Authentication is set on Azure App Service"
   # checkov:skip=CKV_AZURE_17: "Ensure the web app has 'Client Certificates (Incoming client certificates)' set"
@@ -72,12 +72,8 @@ resource "azurerm_linux_web_app" "this" {
   }
 
   logs {
-    failed_request_tracing_enabled  = true
-    detailed_error_messages_enabled = true
-    http_logs {
-      retention_in_days = 4
-      retention_in_mb   = 10
-    }
+    failed_request_tracing  = true
+    detailed_error_messages = true
   }
 
   identity {

@@ -34,8 +34,8 @@ locals {
   prefix = random_pet.name.id
   tags = merge(
     {
+      module    = "atrakic/azure-linux-web-app-terraform"
       Workspace = terraform.workspace
-      Terraform = "true"
     },
   )
 }
@@ -45,11 +45,16 @@ resource "random_pet" "name" {
   separator = ""
 }
 
+# This ensures we have unique CAF compliant names for our resources.
+module "naming" {
+  source = "git::https://github.com/Azure/terraform-azurerm-naming.git?ref=75d5afae4cb01f4446025e81f76af6b60c1f927b" # commit hash of version 5.0.0
+}
+
 module "base" {
   source = "./modules/base"
 
   location = var.location
-  name     = local.prefix
+  name     = module.naming.resource_group.name_unique
   tags     = local.tags
 }
 
@@ -60,8 +65,7 @@ module "api" {
   name                = "api${local.prefix}"
   resource_group_id   = module.base.azurerm_resource_group_id
   resource_group_name = module.base.azurerm_resource_group_name
-  image_name          = local.prefix
-  image_context       = "${path.module}/"
+  image_context       = path.module
   docker_image_name   = "${local.prefix}.azurecr.io/api:latest"
   dockerfile          = "${path.module}/Dockerfile.api"
   service_plan_id     = module.base.azurerm_service_plan_id
@@ -69,7 +73,8 @@ module "api" {
   acr_login_server    = module.base.azurerm_container_registry_login_server
   acr_admin_username  = module.base.azurerm_container_registry_admin_username
   acr_admin_password  = module.base.azurerm_container_registry_admin_password
-  tags                = local.tags
+  tags = merge({
+  api = module.naming.function_app.name_unique }, local.tags)
 
   APPLICATIONINSIGHTS_CONNECTION_STRING = module.base.application_insights_connection_string
   APPINSIGHTS_INSTRUMENTATIONKEY        = module.base.application_insights_instrumentation_key
@@ -82,8 +87,7 @@ module "web" {
   name                = "web${local.prefix}"
   resource_group_id   = module.base.azurerm_resource_group_id
   resource_group_name = module.base.azurerm_resource_group_name
-  image_name          = local.prefix
-  image_context       = "${path.module}/"
+  image_context       = path.module
   docker_image_name   = "${local.prefix}.azurecr.io/web:latest"
   dockerfile          = "${path.module}/Dockerfile.web"
   service_plan_id     = module.base.azurerm_service_plan_id
