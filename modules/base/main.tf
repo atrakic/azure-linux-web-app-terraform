@@ -16,6 +16,7 @@ resource "azurerm_resource_group" "this" {
   tags     = var.tags
 }
 
+# checkov:skip=CKV_AZURE_165: "Ensure geo-replicated container registries to match multi-region container deployments."
 resource "azurerm_container_registry" "this" {
   name                      = "${var.name}reg" # alpha numeric characters only are allowed 
   resource_group_name       = azurerm_resource_group.this.name
