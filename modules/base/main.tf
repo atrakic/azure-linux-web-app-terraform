@@ -26,14 +26,14 @@ resource "azurerm_container_registry" "this" {
 }
 
 resource "azurerm_service_plan" "this" {
-  name                = "${var.name}-plan"
-  resource_group_name = azurerm_resource_group.this.name
-  location            = azurerm_resource_group.this.location
-  os_type             = "Linux"
-  sku_name            = "B2"
-  worker_count        = 1
-  # zone_balancing_enabled = true
-  tags = var.tags
+  name                   = "${var.name}-plan"
+  resource_group_name    = azurerm_resource_group.this.name
+  location               = azurerm_resource_group.this.location
+  os_type                = "Linux"
+  sku_name               = "B2"
+  worker_count           = 2
+  zone_balancing_enabled = true
+  tags                   = var.tags
 }
 
 resource "azurerm_application_insights" "this" {
