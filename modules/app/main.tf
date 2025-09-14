@@ -1,8 +1,3 @@
-variable "tags" {
-  type    = map(any)
-  default = {}
-}
-
 variable "location" {}
 variable "name" {}
 variable "resource_group_id" {}
@@ -10,13 +5,107 @@ variable "resource_group_name" {}
 variable "image_context" {}
 variable "docker_image_name" {}
 variable "service_plan_id" {}
-variable "docker_registry_url" {}
 variable "acr_login_server" {}
 variable "acr_admin_username" {}
 variable "acr_admin_password" {}
 variable "dockerfile" { default = "Dockerfile" }
-variable "APPLICATIONINSIGHTS_CONNECTION_STRING" { default = "" }
-variable "APPINSIGHTS_INSTRUMENTATIONKEY" { default = "" }
+
+variable "app_settings" {
+  type    = map(string)
+  default = {}
+}
+
+variable "site_config" {
+  type = object({
+    always_on             = optional(bool, true)
+    linux_fx_version      = optional(string)
+    api_definition_url    = optional(string)
+    api_management_api_id = optional(string)
+    app_command_line      = optional(string)
+    # auto_heal_enabled                             = optional(bool)
+    auto_swap_slot_name                           = optional(string)
+    app_scale_limit                               = optional(number)
+    application_insights_connection_string        = optional(string)
+    application_insights_key                      = optional(string)
+    container_registry_managed_identity_client_id = optional(string)
+    container_registry_use_managed_identity       = optional(bool)
+    default_documents                             = optional(list(string))
+    elastic_instance_minimum                      = optional(number)
+    ftps_state                                    = optional(string, "FtpsOnly")
+    health_check_eviction_time_in_min             = optional(number)
+    health_check_path                             = optional(string)
+    http2_enabled                                 = optional(bool, true)
+    ip_restriction_default_action                 = optional(string, "Allow")
+    load_balancing_mode                           = optional(string, "LeastRequests")
+    local_mysql_enabled                           = optional(bool, false)
+    managed_pipeline_mode                         = optional(string, "Integrated")
+    minimum_tls_version                           = optional(string, "1.3")
+    pre_warmed_instance_count                     = optional(number)
+    remote_debugging_enabled                      = optional(bool, false)
+    remote_debugging_version                      = optional(string)
+    runtime_scale_monitoring_enabled              = optional(bool)
+    scm_type                                      = optional(string, "None")
+    scm_ip_restriction_default_action             = optional(string, "Allow")
+    scm_minimum_tls_version                       = optional(string, "1.2")
+    scm_use_main_ip_restriction                   = optional(bool, false)
+    use_32_bit_worker                             = optional(bool, false)
+    vnet_route_all_enabled                        = optional(bool, false)
+    websockets_enabled                            = optional(bool, false)
+    worker_count                                  = optional(number)
+    app_service_logs = optional(map(object({
+      disk_quota_mb         = optional(number, 35)
+      retention_period_days = optional(number)
+    })), {})
+    application_stack = optional(map(object({
+      docker = optional(list(object({
+        image_name        = string
+        image_tag         = string
+        registry_password = optional(string)
+        registry_url      = string
+        registry_username = optional(string)
+      })))
+      docker_image_name        = optional(string)
+      docker_registry_url      = optional(string)
+      docker_registry_username = optional(string)
+      docker_registry_password = optional(string)
+      docker_container_name    = optional(string)
+      docker_container_tag     = optional(string)
+    })), {})
+    cors = optional(map(object({
+      allowed_origins     = optional(list(string))
+      support_credentials = optional(bool, false)
+    })), {})
+    ip_restriction = optional(map(object({
+      action                    = optional(string, "Allow")
+      ip_address                = optional(string)
+      name                      = optional(string)
+      priority                  = optional(number, 65000)
+      service_tag               = optional(string)
+      virtual_network_subnet_id = optional(string)
+      headers = optional(map(object({
+        x_azure_fdid      = optional(list(string))
+        x_fd_health_probe = optional(list(string), ["1"])
+        x_forwarded_for   = optional(list(string))
+        x_forwarded_host  = optional(list(string))
+      })), {})
+    })), {})
+    scm_ip_restriction = optional(map(object({
+      action                    = optional(string, "Allow")
+      ip_address                = optional(string)
+      name                      = optional(string)
+      priority                  = optional(number, 65000)
+      service_tag               = optional(string)
+      virtual_network_subnet_id = optional(string)
+      headers = optional(map(object({
+        x_azure_fdid      = optional(list(string))
+        x_fd_health_probe = optional(list(string), ["1"])
+        x_forwarded_for   = optional(list(string))
+        x_forwarded_host  = optional(list(string))
+      })), {})
+    })), {})
+  })
+  default = {}
+}
 
 variable "auth_settings" {
   type = map(object({
@@ -83,7 +172,6 @@ variable "auth_settings" {
   ```
   EXAMPLE
 }
-
 
 variable "auth_settings_v2" {
   type = map(object({
@@ -165,9 +253,7 @@ variable "auth_settings_v2" {
       validate_nonce                    = optional(bool, true)
       })),
       {
-        login = {
-
-        }
+        login = {}
     })
     microsoft_v2 = optional(map(object({
       client_id                  = optional(string)
@@ -179,87 +265,7 @@ variable "auth_settings_v2" {
       consumer_key                 = optional(string)
       consumer_secret_setting_name = optional(string)
     })), {})
-
   }))
-  default = {
-  }
-}
-variable "site_config" {
-  type = object({
-    always_on             = optional(bool, true)
-    linux_fx_version      = optional(string)
-    api_definition_url    = optional(string)
-    api_management_api_id = optional(string)
-    app_command_line      = optional(string)
-    # auto_heal_enabled                             = optional(bool)
-    auto_swap_slot_name                           = optional(string)
-    app_scale_limit                               = optional(number)
-    application_insights_connection_string        = optional(string)
-    application_insights_key                      = optional(string)
-    container_registry_managed_identity_client_id = optional(string)
-    container_registry_use_managed_identity       = optional(bool)
-    default_documents                             = optional(list(string))
-    elastic_instance_minimum                      = optional(number)
-    ftps_state                                    = optional(string, "FtpsOnly")
-    health_check_eviction_time_in_min             = optional(number)
-    health_check_path                             = optional(string)
-    http2_enabled                                 = optional(bool, true)
-    ip_restriction_default_action                 = optional(string, "Allow")
-    load_balancing_mode                           = optional(string, "LeastRequests")
-    local_mysql_enabled                           = optional(bool, false)
-    managed_pipeline_mode                         = optional(string, "Integrated")
-    minimum_tls_version                           = optional(string, "1.3")
-    pre_warmed_instance_count                     = optional(number)
-    remote_debugging_enabled                      = optional(bool, false)
-    remote_debugging_version                      = optional(string)
-    runtime_scale_monitoring_enabled              = optional(bool)
-    scm_type                                      = optional(string, "None")
-    scm_ip_restriction_default_action             = optional(string, "Allow")
-    scm_minimum_tls_version                       = optional(string, "1.2")
-    scm_use_main_ip_restriction                   = optional(bool, false)
-    use_32_bit_worker                             = optional(bool, false)
-    vnet_route_all_enabled                        = optional(bool, false)
-    websockets_enabled                            = optional(bool, false)
-    worker_count                                  = optional(number)
-    app_service_logs = optional(map(object({
-      disk_quota_mb         = optional(number, 35)
-      retention_period_days = optional(number)
-    })), {})
-    application_stack = optional(map(object({
-    })), {})
-    cors = optional(map(object({
-      allowed_origins     = optional(list(string))
-      support_credentials = optional(bool, false)
-    })), {})
-    ip_restriction = optional(map(object({
-      action                    = optional(string, "Allow")
-      ip_address                = optional(string)
-      name                      = optional(string)
-      priority                  = optional(number, 65000)
-      service_tag               = optional(string)
-      virtual_network_subnet_id = optional(string)
-      headers = optional(map(object({
-        x_azure_fdid      = optional(list(string))
-        x_fd_health_probe = optional(list(string), ["1"])
-        x_forwarded_for   = optional(list(string))
-        x_forwarded_host  = optional(list(string))
-      })), {})
-    })), {})
-    scm_ip_restriction = optional(map(object({
-      action                    = optional(string, "Allow")
-      ip_address                = optional(string)
-      name                      = optional(string)
-      priority                  = optional(number, 65000)
-      service_tag               = optional(string)
-      virtual_network_subnet_id = optional(string)
-      headers = optional(map(object({
-        x_azure_fdid      = optional(list(string))
-        x_fd_health_probe = optional(list(string), ["1"])
-        x_forwarded_for   = optional(list(string))
-        x_forwarded_host  = optional(list(string))
-      })), {})
-    })), {})
-  })
   default = {}
 }
 
@@ -274,6 +280,11 @@ variable "storage_shares_to_mount" {
   }))
   default = {
   }
+}
+
+variable "tags" {
+  type    = map(any)
+  default = {}
 }
 
 resource "docker_registry_image" "this" {
@@ -318,13 +329,18 @@ resource "azurerm_linux_web_app" "this" {
     ftps_state                              = var.site_config.ftps_state
     health_check_path                       = var.site_config.health_check_path
 
-    application_stack {
-      docker_image_name        = docker_image.this.name  # local.image_name
-      docker_registry_url      = var.docker_registry_url # "https://${data.azurerm_container_registry.acr.login_server}"
-      docker_registry_username = var.acr_admin_username
-      docker_registry_password = var.acr_admin_password
-    }
+    dynamic "application_stack" {
+      for_each = var.site_config.application_stack
 
+      content {
+        docker_image_name = docker_image.this.name # local.image_name
+        #docker_image_name        = application_stack.value.docker_image_name
+        docker_registry_password = application_stack.value.docker_registry_password
+        docker_registry_url      = application_stack.value.docker_registry_url
+        docker_registry_username = application_stack.value.docker_registry_username
+      }
+
+    }
     dynamic "cors" {
       for_each = var.site_config.cors
 
@@ -381,7 +397,6 @@ resource "azurerm_linux_web_app" "this" {
       }
     }
   }
-
   dynamic "auth_settings" {
     for_each = var.auth_settings
 
@@ -593,11 +608,7 @@ resource "azurerm_linux_web_app" "this" {
     }
   }
 
-  app_settings = {
-    "APPLICATIONINSIGHTS_CONNECTION_STRING" = var.APPLICATIONINSIGHTS_CONNECTION_STRING
-    "APPINSIGHTS_INSTRUMENTATIONKEY"        = var.APPINSIGHTS_INSTRUMENTATIONKEY
-    "WEBSITES_PORT"                         = "8080"
-  }
+  app_settings = var.app_settings
 
   dynamic "storage_account" {
     for_each = var.storage_shares_to_mount

@@ -69,15 +69,18 @@ module "api" {
   docker_image_name   = "${local.prefix}.azurecr.io/api:latest"
   dockerfile          = "${path.module}/Dockerfile.api"
   service_plan_id     = module.base.azurerm_service_plan_id
-  docker_registry_url = "https://${module.base.azurerm_container_registry_login_server}"
   acr_login_server    = module.base.azurerm_container_registry_login_server
   acr_admin_username  = module.base.azurerm_container_registry_admin_username
   acr_admin_password  = module.base.azurerm_container_registry_admin_password
-  tags = merge({
-  api = module.naming.function_app.name_unique }, local.tags)
-
-  APPLICATIONINSIGHTS_CONNECTION_STRING = module.base.application_insights_connection_string
-  APPINSIGHTS_INSTRUMENTATIONKEY        = module.base.application_insights_instrumentation_key
+  site_config = {
+    docker_registry_url = "https://${module.base.azurerm_container_registry_login_server}"
+  }
+  app_settings = {
+    "WEBSITES_PORT"                         = "8080"
+    "APPLICATIONINSIGHTS_CONNECTION_STRING" = module.base.application_insights_connection_string
+    "APPINSIGHTS_INSTRUMENTATIONKEY"        = module.base.application_insights_instrumentation_key
+  }
+  tags = merge({ api = module.naming.function_app.name_unique }, local.tags)
 }
 
 module "web" {
@@ -91,14 +94,19 @@ module "web" {
   docker_image_name   = "${local.prefix}.azurecr.io/web:latest"
   dockerfile          = "${path.module}/Dockerfile.web"
   service_plan_id     = module.base.azurerm_service_plan_id
-  docker_registry_url = "https://${module.base.azurerm_container_registry_login_server}"
   acr_login_server    = module.base.azurerm_container_registry_login_server
   acr_admin_username  = module.base.azurerm_container_registry_admin_username
   acr_admin_password  = module.base.azurerm_container_registry_admin_password
-  tags                = local.tags
-
-  APPLICATIONINSIGHTS_CONNECTION_STRING = module.base.application_insights_connection_string
-  APPINSIGHTS_INSTRUMENTATIONKEY        = module.base.application_insights_instrumentation_key
+  site_config = {
+    docker_registry_url = "https://${module.base.azurerm_container_registry_login_server}"
+  }
+  app_settings = {
+    "WEBSITES_PORT"                         = "80"
+    "APPLICATIONINSIGHTS_CONNECTION_STRING" = module.base.application_insights_connection_string
+    "APPINSIGHTS_INSTRUMENTATIONKEY"        = module.base.application_insights_instrumentation_key
+    "API_URI"                               = "${module.api.default_hostname}:8080"
+  }
+  tags = merge({ app = module.naming.function_app.name_unique }, local.tags)
 }
 
 output "api" {
