@@ -25,6 +25,7 @@ resource "azurerm_container_registry" "this" {
   trust_policy_enabled      = true
   retention_policy_in_days  = 7
   quarantine_policy_enabled = true
+  data_endpoint_enabled     = true
   tags                      = var.tags
 }
 
