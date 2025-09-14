@@ -1,31 +1,12 @@
-name: CI Pipeline
-
+name: Terraform CI
 on:
+  workflow_dispatch: # allows manual trigger
   push:
   pull_request:
     branches: [ main ]
-
 jobs:
-  tf-ci:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.5.7
-
-      # TODO: DISABLED
-      - name: Terraform Init
-        if: false
-        run: terraform init
-
-      - name: Terraform Validate
-        if: false
-        run: terraform validate
-
-      - name: Terraform Format Check
-        if: false
-        run: terraform fmt -check
+  terraform-ci:
+    uses: atrakic/terraform-test-workflow/.github/workflows/tf-reusable-workflow.yml@main
+    with:
+      terraform_version: ">= 1.0"
+      # terraform_security_test_enabled: false

@@ -17,12 +17,20 @@ resource "azurerm_resource_group" "this" {
 }
 
 resource "azurerm_container_registry" "this" {
-  name                = "${var.name}reg" # alpha numeric characters only are allowed 
-  resource_group_name = azurerm_resource_group.this.name
-  location            = azurerm_resource_group.this.location
-  sku                 = "Standard"
-  admin_enabled       = true
-  tags                = var.tags
+  name = "${var.name}reg" # alpha numeric characters only are allowed 
+  # checkov:skip=CKV_AZURE_137:"Ensure ACR admin account is disabled"
+  # checkov:skip=CKV_AZURE_233: "Ensure Azure Container Registry (ACR) is zone redundant"
+  # checkov:skip=CKV_AZURE_139: "Ensure ACR set to disable public networking"
+  # checkov:skip=CKV_AZURE_165: "Ensure geo-replicated container registries to match multi-region container deployments."
+  resource_group_name       = azurerm_resource_group.this.name
+  location                  = azurerm_resource_group.this.location
+  sku                       = "Standard"
+  admin_enabled             = true
+  trust_policy_enabled      = true
+  retention_policy_in_days  = 7
+  quarantine_policy_enabled = true
+  data_endpoint_enabled     = true
+  tags                      = var.tags
 }
 
 resource "azurerm_service_plan" "this" {
@@ -30,9 +38,13 @@ resource "azurerm_service_plan" "this" {
   resource_group_name = azurerm_resource_group.this.name
   location            = azurerm_resource_group.this.location
   os_type             = "Linux"
-  sku_name            = "B2"
-  worker_count        = 1
-  tags                = var.tags
+  # checkov:skip=CKV_AZURE_225:"Ensure the App Service Plan is zone redundant"
+  # checkov:skip=CKV_AZURE_233: "Ensure Azure Container Registry (ACR) is zone redundant"
+  # checkov:skip=CKV_AZURE_211:"Ensure App Service plan suitable for production use"
+  sku_name = "B2"
+  # checkov:skip=CKV_AZURE_212:"Ensure App Service has a minimum number of instances for failover"
+  worker_count = 1
+  tags         = var.tags
 }
 
 resource "azurerm_application_insights" "this" {

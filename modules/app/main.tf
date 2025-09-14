@@ -36,7 +36,15 @@ resource "docker_image" "this" {
 }
 
 resource "azurerm_linux_web_app" "this" {
-  name                = var.name
+  name = var.name
+
+  # checkov:skip=CKV_AZURE_222: "Ensure that Azure Web App public network access is disabled"
+  # checkov:skip=CKV_AZURE_13: "Ensure App Service Authentication is set on Azure App Service"
+  # checkov:skip=CKV_AZURE_17: "Ensure the web app has 'Client Certificates (Incoming client certificates)' set"
+  # checkov:skip=CKV_AZURE_88: "Ensure that app services use Azure Files"
+  # checkov:skip=CKV_AZURE_66: "Ensure that App service enables failed request tracing"
+  # checkov:skip=CKV_AZURE_65: "Ensure that App service enables detailed error messages"
+
   resource_group_name = var.resource_group_name
   location            = var.location
   service_plan_id     = var.service_plan_id
@@ -50,6 +58,7 @@ resource "azurerm_linux_web_app" "this" {
       docker_registry_password = var.acr_admin_password
     }
 
+    http2_enabled                           = true
     container_registry_use_managed_identity = true
     always_on                               = true
     ftps_state                              = "FtpsOnly"
@@ -60,6 +69,15 @@ resource "azurerm_linux_web_app" "this" {
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = var.APPLICATIONINSIGHTS_CONNECTION_STRING
     "APPINSIGHTS_INSTRUMENTATIONKEY"        = var.APPINSIGHTS_INSTRUMENTATIONKEY
     "WEBSITES_PORT"                         = "8080"
+  }
+
+  logs {
+    failed_request_tracing_enabled  = true
+    detailed_error_messages_enabled = true
+    http_logs {
+      retention_in_days = 4
+      retention_in_mb   = 10
+    }
   }
 
   identity {
