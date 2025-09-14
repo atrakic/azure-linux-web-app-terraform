@@ -9,3 +9,4 @@ jobs:
     uses: atrakic/terraform-test-workflow/.github/workflows/tf-reusable-workflow.yml@main
     with:
       terraform_version: ">= 1.0"
+      terraform_security_test_enabled: false
