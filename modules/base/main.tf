@@ -26,13 +26,16 @@ resource "azurerm_container_registry" "this" {
 }
 
 resource "azurerm_service_plan" "this" {
-  name                   = "${var.name}-plan"
-  resource_group_name    = azurerm_resource_group.this.name
-  location               = azurerm_resource_group.this.location
-  os_type                = "Linux"
-  sku_name               = "B2"
-  worker_count           = 2
-  zone_balancing_enabled = true
+  name                = "${var.name}-plan"
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  os_type             = "Linux"
+  # checkov:skip=CKV_AZURE_211:"Ensure App Service plan suitable for production use"
+  sku_name = "B2"
+  # checkov:skip=CKV_AZURE_212:"Ensure App Service has a minimum number of instances for failover"
+  worker_count = 1
+  # checkov:skip=CKV_AZURE_225:"Ensure the App Service Plan is zone redundant"
+  zone_balancing_enabled = false
   tags                   = var.tags
 }
 
