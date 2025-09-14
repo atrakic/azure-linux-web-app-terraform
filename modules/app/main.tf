@@ -65,6 +65,10 @@ resource "azurerm_linux_web_app" "this" {
     "WEBSITES_PORT"                         = "8080"
   }
 
+  logs {
+    failed_request_tracing_enabled = true
+  }
+
   identity {
     type = "SystemAssigned"
   }
