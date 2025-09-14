@@ -18,6 +18,19 @@ variable "dockerfile" { default = "Dockerfile" }
 variable "APPLICATIONINSIGHTS_CONNECTION_STRING" { default = "" }
 variable "APPINSIGHTS_INSTRUMENTATIONKEY" { default = "" }
 
+variable "storage_shares_to_mount" {
+  type = map(object({
+    access_key   = string
+    account_name = string
+    mount_path   = string
+    name         = string
+    share_name   = string
+    type         = optional(string, "AzureFiles")
+  }))
+  default = {
+  }
+}
+
 resource "docker_registry_image" "this" {
   name          = docker_image.this.name
   keep_remotely = false
@@ -69,6 +82,19 @@ resource "azurerm_linux_web_app" "this" {
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = var.APPLICATIONINSIGHTS_CONNECTION_STRING
     "APPINSIGHTS_INSTRUMENTATIONKEY"        = var.APPINSIGHTS_INSTRUMENTATIONKEY
     "WEBSITES_PORT"                         = "8080"
+  }
+
+  dynamic "storage_account" {
+    for_each = var.storage_shares_to_mount
+
+    content {
+      access_key   = storage_account.value.access_key
+      account_name = storage_account.value.account_name
+      name         = storage_account.value.name
+      share_name   = storage_account.value.share_name
+      type         = storage_account.value.type
+      mount_path   = storage_account.value.mount_path
+    }
   }
 
   logs {
