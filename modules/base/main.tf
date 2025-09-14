@@ -17,14 +17,15 @@ resource "azurerm_resource_group" "this" {
 }
 
 resource "azurerm_container_registry" "this" {
-  name                     = "${var.name}reg" # alpha numeric characters only are allowed 
-  resource_group_name      = azurerm_resource_group.this.name
-  location                 = azurerm_resource_group.this.location
-  sku                      = "Standard"
-  admin_enabled            = true
-  trust_policy_enabled     = true
-  retention_policy_in_days = 7
-  tags                     = var.tags
+  name                      = "${var.name}reg" # alpha numeric characters only are allowed 
+  resource_group_name       = azurerm_resource_group.this.name
+  location                  = azurerm_resource_group.this.location
+  sku                       = "Standard"
+  admin_enabled             = true
+  trust_policy_enabled      = true
+  retention_policy_in_days  = 7
+  quarantine_policy_enabled = true
+  tags                      = var.tags
 }
 
 resource "azurerm_service_plan" "this" {
