@@ -52,10 +52,7 @@ resource "azurerm_linux_web_app" "this" {
       docker_registry_password = var.acr_admin_password
     }
 
-    site_config {
-      http2_enabled = true
-    }
-
+    http2_enabled                           = true
     container_registry_use_managed_identity = true
     always_on                               = true
     ftps_state                              = "FtpsOnly"
