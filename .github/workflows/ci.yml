@@ -1,20 +1,12 @@
 name: CI Pipeline
-
 on:
   workflow_dispatch: # allows manual trigger
   push:
   pull_request:
     branches: [ main ]
-
 jobs:
   terraform-ci:
-    steps:
-      - uses: actions/checkout@v5
-
+  call-tf-reusable-workflow:
     uses: atrakic/terraform-test-workflow/.github/workflows/tf-reusable-workflow.yml@main
     with:
-      working_directory: ./tf
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.5.7
+      working_directory: tests/tf
