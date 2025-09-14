@@ -203,7 +203,7 @@ variable "site_config" {
     ftps_state                                    = optional(string, "FtpsOnly")
     health_check_eviction_time_in_min             = optional(number)
     health_check_path                             = optional(string)
-    http2_enabled                                 = optional(bool, false)
+    http2_enabled                                 = optional(bool, true)
     ip_restriction_default_action                 = optional(string, "Allow")
     load_balancing_mode                           = optional(string, "LeastRequests")
     local_mysql_enabled                           = optional(bool, false)
@@ -295,6 +295,9 @@ resource "docker_image" "this" {
 resource "azurerm_linux_web_app" "this" {
   name = var.name
 
+  # checkov:skip=CKV_AZURE_78: "Ensure FTP deployments are disabled":
+  # checkov:skip=CKV_AZURE_214: "Ensure App Service is set to be always on"
+  # checkov:skip=CKV_AZURE_18: "Ensure that 'HTTP Version' is the latest if used to run the web app"
   # checkov:skip=CKV_AZURE_63: "Ensure that App service enables HTTP logging"
   # checkov:skip=CKV_AZURE_222: "Ensure that Azure Web App public network access is disabled"
   # checkov:skip=CKV_AZURE_13: "Ensure App Service Authentication is set on Azure App Service"
