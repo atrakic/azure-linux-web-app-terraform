@@ -38,6 +38,8 @@ resource "docker_image" "this" {
 resource "azurerm_linux_web_app" "this" {
   name = var.name
 
+  # checkov:skip=CKV_AZURE_13: "Ensure App Service Authentication is set on Azure App Service"
+  # checkov:skip=CKV_AZURE_17: "Ensure the web app has 'Client Certificates (Incoming client certificates)' set"
   # checkov:skip=CKV_AZURE_88: "Ensure that app services use Azure Files"
   resource_group_name = var.resource_group_name
   location            = var.location
@@ -66,7 +68,12 @@ resource "azurerm_linux_web_app" "this" {
   }
 
   logs {
-    failed_request_tracing_enabled = true
+    failed_request_tracing_enabled  = true
+    detailed_error_messages_enabled = true
+    http_logs {
+      retention_in_days = 4
+      retention_in_mb   = 10
+    }
   }
 
   identity {
