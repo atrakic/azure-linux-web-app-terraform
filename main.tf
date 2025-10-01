@@ -33,7 +33,6 @@ locals {
   name = module.naming.resource_group.name_unique
   tags = merge(
     {
-      module    = "atrakic/azure-linux-web-app-terraform"
       Workspace = terraform.workspace
     },
   )
@@ -63,7 +62,7 @@ module "api" {
   resource_group_name = module.base.azurerm_resource_group_name
   image_context       = path.module
   docker_image_name   = "${local.name}.azurecr.io/api:latest"
-  dockerfile          = "${path.module}/Dockerfile.api"
+  dockerfile          = "${path.module}/api/Dockerfile"
   service_plan_id     = module.base.azurerm_service_plan_id
   acr_login_server    = module.base.azurerm_container_registry_login_server
   acr_admin_username  = module.base.azurerm_container_registry_admin_username
@@ -88,7 +87,7 @@ module "web" {
   resource_group_name = module.base.azurerm_resource_group_name
   image_context       = path.module
   docker_image_name   = "${local.name}.azurecr.io/web:latest"
-  dockerfile          = "${path.module}/Dockerfile.web"
+  dockerfile          = "${path.module}/web/Dockerfile"
   service_plan_id     = module.base.azurerm_service_plan_id
   acr_login_server    = module.base.azurerm_container_registry_login_server
   acr_admin_username  = module.base.azurerm_container_registry_admin_username
@@ -103,6 +102,11 @@ module "web" {
     "API_URI"                               = "${module.api.default_hostname}:8080"
   }
   tags = merge({ app = module.naming.function_app.name_unique }, local.tags)
+}
+
+output "location" {
+  description = "The location of the resource."
+  value       = var.location
 }
 
 output "api" {

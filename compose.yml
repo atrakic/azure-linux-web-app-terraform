@@ -1,18 +1,12 @@
 services:
   api:
     build:
-      context: ./
-      dockerfile: Dockerfile.api
+      context: ./src/api
     container_name: api
-    #ports:
-    #  - "8080:8080"
   web:
     build:
-      context: ./
-      dockerfile: Dockerfile.web
+      context: ./src/web
     container_name: web
-    #environment:
-    #  - API_URI=http://apiaaaa:8080 # FIXME
     ports:
       - "8000:80"
     depends_on:

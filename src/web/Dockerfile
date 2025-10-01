@@ -1,6 +1,9 @@
 FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
 
+ARG API_URI=http://api:8080
+ENV API_URI ${API_URI}
+
 COPY <<EOF index.html
 <!DOCTYPE html>
 <html lang="en">
@@ -75,13 +78,11 @@ function continuousFetch(url) {
 continuousFetch('/api');
 EOF
 
-ENV API_URI=${API_URI:-http://api:8080}
-
 # Configure Nginx to serve the static file
-RUN <<EOF cat > /etc/nginx/conf.d/default.conf
+RUN <<EOF cat > /etc/nginx/conf.d/default.conf 
 server {
     listen 80;
-    server_name localhost;
+    server_name ${NGINX_SERVER_NAME:-localhost};
 
     location / {
         root /usr/share/nginx/html;

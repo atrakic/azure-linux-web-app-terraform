@@ -1,7 +1,7 @@
 MAKEFLAGS += --silent
 
 OPTIONS ?= --build --quiet-pull --force-recreate --no-color --remove-orphans
-APP ?= api
+APP ?= web
 
 .PHONY: all init test ci clean
 all:
