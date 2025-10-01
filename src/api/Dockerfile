@@ -1,5 +1,5 @@
 # Example web app
-FROM golang:1.21-alpine AS builder
+FROM golang:1.23-alpine AS builder
 WORKDIR /app
 
 # Use heredoc to create a simple system info webserver
@@ -63,6 +63,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
     -o sysinfo main.go
 
 FROM scratch AS final
+COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /app/sysinfo /sysinfo
+USER nobody
 EXPOSE 8080
 ENTRYPOINT ["/sysinfo"]

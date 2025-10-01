@@ -46,7 +46,7 @@ variable "site_config" {
     runtime_scale_monitoring_enabled              = optional(bool)
     scm_type                                      = optional(string, "None")
     scm_ip_restriction_default_action             = optional(string, "Allow")
-    scm_minimum_tls_version                       = optional(string, "1.2")
+    scm_minimum_tls_version                       = optional(string, "1.3")
     scm_use_main_ip_restriction                   = optional(bool, false)
     use_32_bit_worker                             = optional(bool, false)
     vnet_route_all_enabled                        = optional(bool, false)
