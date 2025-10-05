@@ -2,8 +2,20 @@ name: Terraform CI
 on:
   workflow_dispatch: # allows manual trigger
   push:
+    paths:
+      - '**.tf'
+      - '**.tfvars'
+      - '**.hcl'
+      - 'modules/**'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches: [ main ]
+    paths:
+      - '**.tf'
+      - '**.tfvars'
+      - '**.hcl'
+      - 'modules/**'
+      - '.github/workflows/ci.yml'
 permissions:
   security-events: write # Needed to upload-sarif
   contents: read # Needed to clone repo
