@@ -107,4 +107,4 @@ EOF
 RUN apk add --no-cache curl
 
 HEALTHCHECK --interval=10s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -sf http://localhost/ || exit 1
+    CMD curl -sf http://localhost/api || exit 1
