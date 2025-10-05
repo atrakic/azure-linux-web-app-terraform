@@ -99,7 +99,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
 
 FROM scratch AS final
 WORKDIR /app
+COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /src/sysinfo .
 COPY --from=builder /src/docs ./docs
+USER nobody
 EXPOSE 8080
 ENTRYPOINT ["./sysinfo"]

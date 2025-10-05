@@ -1,4 +1,4 @@
-FROM nginx:alpine
+FROM nginx:1.27-alpine
 WORKDIR /usr/share/nginx/html
 
 ARG API_URI=http://api:8080
@@ -103,6 +103,8 @@ server {
     }
 }
 EOF
+
+RUN apk add --no-cache curl
 
 HEALTHCHECK --interval=10s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -sf http://localhost/api || exit 1
