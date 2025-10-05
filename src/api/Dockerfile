@@ -1,6 +1,8 @@
 # Example web app
-FROM golang:1.21-alpine AS builder
-WORKDIR /app
+FROM golang:1.23-alpine AS builder
+WORKDIR /src
+
+ADD go.mod go.sum ./
 
 # Use heredoc to create a simple system info webserver
 RUN <<EOF cat > main.go
@@ -13,8 +15,15 @@ import (
     "runtime"
     "os"
     "time"
+
+    httpSwagger "github.com/swaggo/http-swagger"
 )
 
+// @title System Info API
+// @version 1.0
+// @description A simple API to get system information
+// @host localhost:8080
+// @BasePath /
 type SystemInfo struct {
     Hostname        string    \`json:"hostname"\`
     GoVersion       string    \`json:"go_version"\`
@@ -27,10 +36,10 @@ type SystemInfo struct {
 
 func getSystemInfo() SystemInfo {
     hostname, _ := os.Hostname()
-    
+
     var m runtime.MemStats
     runtime.ReadMemStats(&m)
-    
+
     return SystemInfo{
         Hostname:        hostname,
         GoVersion:       runtime.Version(),
@@ -42,9 +51,17 @@ func getSystemInfo() SystemInfo {
     }
 }
 
+// @Summary Get system information
+// @Description Get detailed system information including hostname, Go version, OS, architecture, CPU cores, and memory usage
+// @Description Retrieve information about a system
+// @Tags system
+// @Accept json
+// @Produce json
+// @Success 200 {object} SystemInfo
+// @Router / [get]
 func systemInfoHandler(w http.ResponseWriter, r *http.Request) {
     sysInfo := getSystemInfo()
-    
+
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)
     json.NewEncoder(w).Encode(sysInfo)
@@ -52,17 +69,37 @@ func systemInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
     http.HandleFunc("/", systemInfoHandler)
-    
+
+    // Serve static files from docs directory
+    http.Handle("/docs/", http.StripPrefix("/docs/", http.FileServer(http.Dir("./docs"))))
+
+    // Serve Swagger UI at /swagger/
+    http.Handle("/swagger/", httpSwagger.Handler(
+        httpSwagger.URL("/docs/swagger.json"),
+    ))
+
     log.Println("System Info Server starting on :8080")
+    log.Println("Swagger documentation available at: http://localhost:8080/swagger/")
     log.Fatal(http.ListenAndServe(":8080", nil))
 }
 EOF
+
+# Install dependencies first
+RUN go mod download
+
+# Install swaggo CLI to generate swagger docs
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+
+# Generate swagger documentation
+RUN swag init --parseDependency --parseInternal --generalInfo main.go --output docs
 
 RUN CGO_ENABLED=0 GOOS=linux go build \
     -a -installsuffix cgo \
     -o sysinfo main.go
 
 FROM scratch AS final
-COPY --from=builder /app/sysinfo /sysinfo
+WORKDIR /app
+COPY --from=builder /src/sysinfo .
+COPY --from=builder /src/docs ./docs
 EXPOSE 8080
-ENTRYPOINT ["/sysinfo"]
+ENTRYPOINT ["./sysinfo"]
