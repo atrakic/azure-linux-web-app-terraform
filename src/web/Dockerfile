@@ -79,7 +79,7 @@ continuousFetch('/api');
 EOF
 
 # Configure Nginx to serve the static file
-RUN <<EOF cat > /etc/nginx/conf.d/default.conf 
+RUN <<EOF cat > /etc/nginx/conf.d/default.conf
 server {
     listen 80;
     server_name ${NGINX_SERVER_NAME:-localhost};

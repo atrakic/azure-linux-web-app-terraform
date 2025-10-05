@@ -2,7 +2,18 @@ name: Docker Compose CI
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'src/**'
+      - 'Dockerfile*'
+      - 'compose*.yml'
+      - '.github/workflows/ci-docker-compose.yml'
   pull_request:
+    paths:
+      - 'src/**'
+      - 'Dockerfile*'
+      - 'compose*.yml'
+      - '.github/workflows/ci-docker-compose.yml'
 
 env:
   COMPOSE_FILE: compose.yml:compose.ci.yml
